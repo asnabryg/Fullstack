@@ -114,7 +114,7 @@ const CountryInfo = ({country, api_key}) => {
         alt="flag"
         style={{height: "100px"}}/>
       
-      <h2>Weather in Helsinki</h2>
+      <h2>Weather in {country.capital}</h2>
       <WeatherInfo
         country={country}
         api_key={api_key}/>
@@ -128,7 +128,7 @@ const WeatherInfo = ({country, api_key}) => {
   useEffect(() => {
     console.log('effect temperature')
     axios
-      .get(`http://api.weatherstack.com/current?access_key=${api_key}&query=${country.name}`)
+      .get(`http://api.weatherstack.com/current?access_key=${api_key}&query=${country.capital}`)
       .then(response => {
         console.log('promise fulfilled temperature')
         console.log(response.data)
