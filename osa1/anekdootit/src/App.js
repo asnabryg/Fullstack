@@ -23,7 +23,7 @@ const App = () => {
     newVotes[selected] = newVotes[selected] + 1
     setVotes(newVotes)
   }
-
+  
   const mostVotesIndex = () => {
     let most = 0;
     let index = 0;
