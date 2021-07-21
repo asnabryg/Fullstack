@@ -1,5 +1,5 @@
 {
-  "name": "puhelinluettelo",
+  "name": "maiden_tiedot",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -37,6 +37,7 @@
     ]
   },
   "devDependencies": {
-    "json-server": "^0.16.3"
+    "json": "^11.0.0",
+    "server": "^1.0.34"
   }
 }
