@@ -44,7 +44,10 @@ const App = () => {
           })
           .catch(error => {
             console.log(`Fail to add person: ${person.name}`)
-            console.log(error)
+            setNotification(["red", error.response.data.error])
+            setTimeout(() => {
+              setNotification([null, null])
+            }, 5000)
           })
       }else{
         if (window.confirm(`${newName} is already added to phonebook, replace the old number with new one?`)) {
@@ -61,6 +64,10 @@ const App = () => {
             })
             .catch(error => {
               console.log('Error changing number:', error)
+              setNotification(["red", error.response.data.error])
+              setTimeout(() => {
+                setNotification([null, null])
+              }, 5000)
             })
         }
       }
