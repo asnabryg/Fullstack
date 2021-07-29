@@ -88,6 +88,36 @@ describe("blog is not added", () => {
   })
 })
 
+test("remove blog", async () => {
+  const blogs = await helper.blogsInDb()
+  const blog = blogs[0]
+  
+  await api
+    .delete(`/api/blogs/${blog.id}`)
+    .expect(204)
+
+  const blogsAtEnd = await helper.blogsInDb()
+  const titles = blogsAtEnd.map(b => b.title)
+  expect(titles).not.toContain(blog.title)
+})
+
+test("update blog", async () => {
+  const blogs = await helper.blogsInDb()
+  const newBlogInfo = {
+    likes: 123
+  }
+  expect(blogs[0].likes).toBe(100)
+  
+  await api
+    .put(`/api/blogs/${blogs[0].id}`)
+    .send(newBlogInfo)
+    .expect(200)
+  
+  const blogsAtEnd = await helper.blogsInDb()
+  const blogAtEnd = blogsAtEnd.find(b => b.id === blogs[0].id)
+  expect(blogAtEnd.likes).toBe(123)
+})
+
 afterAll(() => {
   mongoose.connection.close()
 })
