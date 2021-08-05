@@ -1,11 +1,14 @@
 const blogsRouter = require("express").Router()
 const { response } = require("express")
 const Blog = require("../models/blog")
+const User = require("../models/user")
 require("express-async-errors")
 
 blogsRouter.get('/', async (request, response) => {
-  const blog = await Blog.find({})
-  response.json(blog)
+  const blogs = await Blog.find({}).populate("user", {
+    username: 1, name: 1, id: 1
+  })
+  response.json(blogs.map(b => b.toJSON()))
 })
 
 blogsRouter.post('/', async (request, response) => {
@@ -15,13 +18,20 @@ blogsRouter.post('/', async (request, response) => {
       error: "invalid blog"
     })
   }
+  let user = await User.find({})
+  user = user[0]
+
   const blog = new Blog({
     title: body.title,
     author: body.author ? body.author : "",
     url: body.url,
-    likes: body.likes ? body.likes : 0
+    likes: body.likes ? body.likes : 0,
+    user: user._id
   })
   const savedBlog = await blog.save()
+  user.blogs = user.blogs.concat(savedBlog._id)
+  await user.save()
+
   response.status(201).json(savedBlog.toJSON())
 })
 
