@@ -6,16 +6,12 @@ const jwt = require("jsonwebtoken")
 require("express-async-errors")
 
 const checkToken = token => {
-  console.log("2", token)
   const decodedToken = jwt.verify(token, process.env.SECRET)
-  console.log("3", decodedToken)
   if (!token || !decodedToken.id) {
-    console.log("4")
     return response.status(401).json({
       error: "token missing or invalid"
     })
   }
-  console.log("läpi")
   return decodedToken
 }
 
@@ -27,9 +23,7 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  console.log("1")
   const decodedToken = checkToken(request.token)
-  console.log("läpi2")
 
   const body = request.body
   if (!body.title || !body.url) {
@@ -54,6 +48,19 @@ blogsRouter.post('/', async (request, response) => {
 })
 
 blogsRouter.delete("/:id", async (request, response) => {
+  const decodedToken = checkToken(request.token)
+  const blog = await Blog.findById(request.params.id)
+  if (!blog) {
+    return response.status(400).json({
+      error: "Id is wrong or blog is already deleted"
+    })
+  }
+  if (blog.user.toString() !== decodedToken.id) {
+    return response.status(401).json({
+      error: "Wrong user; you can only delete your own blogs"
+    })
+  }
+
   await Blog.findByIdAndRemove(request.params.id)
   response.status(204).end()
 })
