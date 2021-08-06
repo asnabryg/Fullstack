@@ -2,18 +2,19 @@ const blogsRouter = require("express").Router()
 const { response } = require("express")
 const Blog = require("../models/blog")
 const User = require("../models/user")
-const jwt = require("jsonwebtoken")
+const tokenExtractor = require("../utils/middleware").tokenExtractor
+const userExtractor = require("../utils/middleware").userExtractor
 require("express-async-errors")
 
-const checkToken = token => {
-  const decodedToken = jwt.verify(token, process.env.SECRET)
-  if (!token || !decodedToken.id) {
-    return response.status(401).json({
-      error: "token missing or invalid"
-    })
-  }
-  return decodedToken
-}
+// const decodeToken = token => {
+//   const decodedToken = jwt.verify(token, process.env.SECRET)
+//   if (!token || !decodedToken.id) {
+//     return response.status(401).json({
+//       error: "token missing or invalid"
+//     })
+//   }
+//   return decodedToken
+// }
 
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate("user", {
@@ -22,16 +23,14 @@ blogsRouter.get('/', async (request, response) => {
   response.json(blogs.map(b => b.toJSON()))
 })
 
-blogsRouter.post('/', async (request, response) => {
-  const decodedToken = checkToken(request.token)
-
+blogsRouter.post('/', [tokenExtractor, userExtractor], async (request, response) => {
   const body = request.body
   if (!body.title || !body.url) {
     return response.status(400).json({
       error: "invalid blog"
     })
   }
-  let user = await User.findById(decodedToken.id)
+  let user = request.user
 
   const blog = new Blog({
     title: body.title,
@@ -47,15 +46,14 @@ blogsRouter.post('/', async (request, response) => {
   response.status(201).json(savedBlog.toJSON())
 })
 
-blogsRouter.delete("/:id", async (request, response) => {
-  const decodedToken = checkToken(request.token)
+blogsRouter.delete("/:id", [tokenExtractor, userExtractor], async (request, response) => {
   const blog = await Blog.findById(request.params.id)
   if (!blog) {
     return response.status(400).json({
       error: "Id is wrong or blog is already deleted"
     })
   }
-  if (blog.user.toString() !== decodedToken.id) {
+  if (blog.user.toString() !== request.user.id) {
     return response.status(401).json({
       error: "Wrong user; you can only delete your own blogs"
     })
