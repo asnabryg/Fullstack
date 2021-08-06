@@ -5,6 +5,20 @@ const User = require("../models/user")
 const jwt = require("jsonwebtoken")
 require("express-async-errors")
 
+const checkToken = token => {
+  console.log("2", token)
+  const decodedToken = jwt.verify(token, process.env.SECRET)
+  console.log("3", decodedToken)
+  if (!token || !decodedToken.id) {
+    console.log("4")
+    return response.status(401).json({
+      error: "token missing or invalid"
+    })
+  }
+  console.log("läpi")
+  return decodedToken
+}
+
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate("user", {
     username: 1, name: 1, id: 1
@@ -13,12 +27,9 @@ blogsRouter.get('/', async (request, response) => {
 })
 
 blogsRouter.post('/', async (request, response) => {
-  const decodedToken = jwt.verify(request.token, process.env.SECRET)
-  if (!request.token || !decodedToken.id) {
-    return response.status(401).json({
-      error: "token missing or invalid"
-    })
-  }
+  console.log("1")
+  const decodedToken = checkToken(request.token)
+  console.log("läpi2")
 
   const body = request.body
   if (!body.title || !body.url) {
