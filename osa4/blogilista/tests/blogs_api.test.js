@@ -2,13 +2,35 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blog = require("../models/blog")
+const User = require("../models/user")
 const helper = require("./test_helper")
 
 const api = supertest(app)
 
+let token = undefined
+
 beforeEach(async () => {
   await Blog.deleteMany({})
   await Blog.insertMany(helper.initialBlogs)
+  await User.deleteMany({})
+
+  const user = {
+    username: "testi",
+    name: "Testi",
+    password: "salasana"
+  }
+
+  await api
+    .post("/api/users")
+    .send(user)
+    .expect(200)
+  
+  const response = await api
+    .post("/api/login")
+    .send({username: "testi", password: "salasana"})
+    .expect(200)
+  
+  token = response.body.token
 })
 
 test('blogs are returned as json', async () => {
@@ -34,6 +56,7 @@ test("a valid blog can be added", async () => {
   await api
     .post("/api/blogs")
     .send(newBlog)
+    .set({Authorization: `bearer ${token}`})
     .expect(201)
     .expect("Content-Type", /application\/json/)
   
@@ -54,6 +77,7 @@ test("added blog have 0 likes if likes param undefined", async () => {
   await api
     .post("/api/blogs")
     .send(newBlog)
+    .set({ Authorization: `bearer ${token}` })
     .expect(201)
     .expect("Content-Type", /application\/json/)
   
@@ -72,6 +96,7 @@ describe("blog is not added", () => {
     await api
       .post("/api/blogs")
       .send(newBlog)
+      .set({ Authorization: `bearer ${token}` })
       .expect(400)
   })
 
@@ -84,16 +109,49 @@ describe("blog is not added", () => {
     await api
       .post("/api/blogs")
       .send(newBlog)
+      .set({ Authorization: `bearer ${token}` })
       .expect(400)
+  })
+
+  test("without token or with invalid token", async () => {
+    const newBlog = {
+      title: "uusi blogi",
+      author: "bloggaaja",
+      url: "www.blogi.com",
+      likes: 26
+    }
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(401)
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .set({Authorization: "bearer lufgncwny4932yx"})
+      .expect(401)
   })
 })
 
 test("remove blog", async () => {
-  const blogs = await helper.blogsInDb()
-  const blog = blogs[0]
+  const newBlog = {
+    title: "uusi blogi",
+    author: "bloggaaja",
+    url: "www.blogi.com",
+    likes: 26
+  }
+  const response = await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .set({Authorization: `bearer ${token}`})
+    .expect(201)
+
+  const blog = response.body
   
   await api
     .delete(`/api/blogs/${blog.id}`)
+    .set({Authorization: `bearer ${token}`})
     .expect(204)
 
   const blogsAtEnd = await helper.blogsInDb()

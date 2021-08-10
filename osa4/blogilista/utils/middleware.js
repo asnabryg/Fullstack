@@ -22,12 +22,22 @@ const tokenExtractor = (request, response, next) => {
     }
     request.decodedToken = decodedToken
   }
+  if (!request.decodedToken) {
+    return response.status(401).json({
+      error: "token missing or invalid"
+    })
+  }
   next()
 }
 
 const userExtractor = async (request, response, next) => {
   const user = await User.findById(request.decodedToken.id)
   request.user = user
+  if (!user){
+    return response.status(404).json({
+      error: "Can't find user"
+    })
+  }
   next()
 }
 

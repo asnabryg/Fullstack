@@ -6,16 +6,6 @@ const tokenExtractor = require("../utils/middleware").tokenExtractor
 const userExtractor = require("../utils/middleware").userExtractor
 require("express-async-errors")
 
-// const decodeToken = token => {
-//   const decodedToken = jwt.verify(token, process.env.SECRET)
-//   if (!token || !decodedToken.id) {
-//     return response.status(401).json({
-//       error: "token missing or invalid"
-//     })
-//   }
-//   return decodedToken
-// }
-
 blogsRouter.get('/', async (request, response) => {
   const blogs = await Blog.find({}).populate("user", {
     username: 1, name: 1, id: 1
