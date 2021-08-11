@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import "./index.css"
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from "./services/login"
@@ -8,27 +9,91 @@ const App = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [user, setUser] = useState(null)
+  const [title, setTitle] = useState("")
+  const [author, setAuthor] = useState("")
+  const [url, setUrl] = useState("")
+  const [notification, setNotification] = useState(null)
 
   useEffect(() => {
-    blogService.getAll().then(blogs =>
-      setBlogs( blogs )
-    )  
+    blogService.getAll().then(blogs => {
+      console.log("getAll")
+      setBlogs(blogs)
+    })
+  }, [])
+
+  useEffect(() => {
+    const loggedUserJSON = window.localStorage.getItem("loggedUser")
+    if (loggedUserJSON) {
+      console.log("getLoggedUser")
+      const user = JSON.parse(loggedUserJSON)
+      setUser(user)
+      blogService.setToken(user.token)
+    }
   }, [])
 
   const handleLogin = async (event) => {
     event.preventDefault()
-    if (!username || !password) {
+    if (!username || !password) {
       return
     }
-    console.log("Logging: ", username, password)
+    console.log("Logging in: ", username, password)
     try {
-      const user = await loginService.login({username, password})
+      const user = await loginService.login({ username, password })
+      blogService.setToken(user.token)
+      window.localStorage.setItem("loggedUser", JSON.stringify(user))
       setUser(user)
       setUsername("")
       setPassword("")
+      setNotification(null)
     } catch (exception) {
+      handleNotification("wrong username or password", "red")
       console.error("wrong credentials, ", exception.message)
     }
+  }
+
+  const handleLogout = (event) => {
+    event.preventDefault()
+    console.log("logging out")
+    window.localStorage.removeItem("loggedUser")
+    setUser(null)
+    setUsername("")
+    setNotification(null)
+    setPassword("")
+    setTitle("")
+    setAuthor("")
+    setUrl("")
+    blogService.setToken(null)
+  }
+
+  const handleCreateBlog = async (event) => {
+    event.preventDefault()
+    const newBlog = {
+      title,
+      author,
+      url
+    }
+    console.log("creating blog:", newBlog)
+    try {
+      await blogService.create(newBlog)
+      setBlogs(await blogService.getAll())
+      handleNotification(
+        `a new blog ${newBlog.title} by ${newBlog.author} added`,
+        "green"
+      )
+    } catch (exception) {
+      console.error(exception.message)
+      handleNotification("invalid blog", "red")
+    }
+  }
+
+  const handleNotification = (message, color) => {
+    setNotification({
+      message,
+      color
+    })
+    setTimeout(() => {
+      setNotification(null)
+    }, 4000)
   }
 
   return (
@@ -36,12 +101,19 @@ const App = () => {
 
       {user === null
         ? <Login
-            setUsername={setUsername}
-            setPassword={setPassword}
-            handleLogin={handleLogin}/>
+          setUsername={setUsername}
+          setPassword={setPassword}
+          handleLogin={handleLogin}
+          notification={notification} />
         : <Blogs
-            user={user}
-            blogs={blogs}/>
+          user={user}
+          blogs={blogs}
+          handleLogout={handleLogout}
+          setTitle={setTitle}
+          setAuthor={setAuthor}
+          setUrl={setUrl}
+          handleCreateBlog={handleCreateBlog}
+          notification={notification} />
       }
 
     </>
@@ -52,27 +124,57 @@ const Login = (props) => {
   return (
     <div>
       <h2>log in to application</h2>
+      <Notification notification={props.notification} />
       <form onSubmit={props.handleLogin}>
         username
-        <input onChange={({target}) => props.setUsername(target.value)}/><br/>
+        <input onChange={({ target }) => props.setUsername(target.value)} /><br />
         password
-        <input onChange={({target}) => props.setPassword(target.value)}/><br/>
+        <input onChange={({ target }) => props.setPassword(target.value)} /><br />
         <button type="submit">login</button>
       </form>
     </div>
   )
 }
 
-const Blogs = ({user, blogs}) => {
+const Blogs = (props) => {
   return (
     <div>
       <h2>blogs</h2>
-      <p>
-        {user.username} logged in
-      </p>
-      {blogs.map(blog =>
+
+      <Notification notification={props.notification} />
+
+      <form onSubmit={props.handleLogout}>
+        {props.user.username} logged in
+        <button>logout</button>
+      </form>
+      <br />
+
+      <h2>create new</h2>
+      <form onSubmit={props.handleCreateBlog}>
+        title:
+        <input onChange={({ target }) => props.setTitle(target.value)} /><br />
+        author:
+        <input onChange={({ target }) => props.setAuthor(target.value)} /><br />
+        url:
+        <input onChange={({ target }) => props.setUrl(target.value)} /><br />
+        <button type="submit">create</button>
+      </form>
+      <br />
+
+      {props.blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
       )}
+    </div>
+  )
+}
+
+const Notification = ({ notification }) => {
+  if (!notification || !notification.message) {
+    return null
+  }
+  return (
+    <div className="notification" style={{ color: notification.color }}>
+      {notification.message}
     </div>
   )
 }
