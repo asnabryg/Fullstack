@@ -123,7 +123,7 @@ const App = () => {
             setUsername={setUsername}
             setPassword={setPassword}
             handleLogin={handleLogin}
-            notification={notification}/>
+            notification={notification} />
         </Toggleable>
         :
         <Blogs
@@ -174,16 +174,16 @@ const Blogs = (props) => {
         <BlogForm
           createBlog={props.addBlog} />
       </Toggleable>
-      <br/>
+      <br />
 
       {props.blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} addLike={props.addLike} removeBlog={props.removeBlog}/>
+        <Blog key={blog.id} blog={blog} addLike={props.addLike} removeBlog={props.removeBlog} />
       )}
     </div>
   )
 }
 
-const Notification = ({notification}) => {
+const Notification = ({ notification }) => {
   if (!notification || !notification.message) {
     return null
   }
