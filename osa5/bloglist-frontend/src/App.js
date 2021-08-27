@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react'
 import "./index.css"
 import Blog from './components/Blog'
 import Toggleable from "./components/Toggleable"
+import BlogForm from "./components/BlogForm"
 import blogService from './services/blogs'
 import loginService from "./services/login"
 
@@ -10,9 +11,6 @@ const App = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [user, setUser] = useState(null)
-  const [title, setTitle] = useState("")
-  const [author, setAuthor] = useState("")
-  const [url, setUrl] = useState("")
   const [notification, setNotification] = useState(null)
 
   const blogFormRef = useRef()
@@ -39,7 +37,7 @@ const App = () => {
     if (!username || !password) {
       return
     }
-    console.log("Logging in: ", username, password)
+
     try {
       const user = await loginService.login({ username, password })
       blogService.setToken(user.token)
@@ -62,32 +60,7 @@ const App = () => {
     setUsername("")
     setNotification(null)
     setPassword("")
-    setTitle("")
-    setAuthor("")
-    setUrl("")
     blogService.setToken(null)
-  }
-
-  const handleCreateBlog = async (event) => {
-    event.preventDefault()
-    const newBlog = {
-      title,
-      author,
-      url
-    }
-    console.log("creating blog:", newBlog)
-    try {
-      await blogService.create(newBlog)
-      setBlogs(await blogService.getAll())
-      handleNotification(
-        `a new blog ${newBlog.title} by ${newBlog.author} added`,
-        "green"
-      )
-      blogFormRef.current.toggleVisiblity()
-    } catch (exception) {
-      console.error(exception.message)
-      handleNotification("invalid blog", "red")
-    }
   }
 
   const handleNotification = (message, color) => {
@@ -98,6 +71,24 @@ const App = () => {
     setTimeout(() => {
       setNotification(null)
     }, 4000)
+  }
+
+  const addBlog = async (newBlog) => {
+    try {
+      console.log("NewBlog:", newBlog)
+      await blogService.create(newBlog)
+      setBlogs(await blogService.getAll())
+      handleNotification(
+        `a new blog ${newBlog.title} by ${newBlog.author} added`,
+        "green"
+      )
+      blogFormRef.current.toggleVisiblity()
+      return true
+    } catch (exception) {
+      console.error(exception.message)
+      handleNotification("invalid blog", "red")
+      return false
+    }
   }
 
   return (
@@ -117,10 +108,7 @@ const App = () => {
           user={user}
           blogs={blogs}
           handleLogout={handleLogout}
-          setTitle={setTitle}
-          setAuthor={setAuthor}
-          setUrl={setUrl}
-          handleCreateBlog={handleCreateBlog}
+          addBlog={addBlog}
           notification={notification}
           blogFormRef={blogFormRef} />
       }
@@ -145,23 +133,6 @@ const LoginForm = (props) => {
   )
 }
 
-const BlogForm = (props) => {
-  return (
-    <div>
-      <h2>create new</h2>
-      <form onSubmit={props.handleCreateBlog}>
-        title:
-        <input onChange={({ target }) => props.setTitle(target.value)} /><br />
-        author:
-        <input onChange={({ target }) => props.setAuthor(target.value)} /><br />
-        url:
-        <input onChange={({ target }) => props.setUrl(target.value)} /><br />
-        <button type="submit">create</button>
-      </form>
-    </div>
-  )
-}
-
 const Blogs = (props) => {
   return (
     <div>
@@ -177,11 +148,7 @@ const Blogs = (props) => {
 
       <Toggleable buttonText="create new blog" ref={props.blogFormRef}>
         <BlogForm
-          handleCreateBlog={props.handleCreateBlog}
-          setTitle={props.setTitle}
-          setAuthor={props.setAuthor}
-          setUrl={props.setUrl}
-           />
+          createBlog={props.addBlog} />
       </Toggleable>
       <br/>
 
@@ -192,7 +159,7 @@ const Blogs = (props) => {
   )
 }
 
-const Notification = ({ notification }) => {
+const Notification = ({notification}) => {
   if (!notification || !notification.message) {
     return null
   }
