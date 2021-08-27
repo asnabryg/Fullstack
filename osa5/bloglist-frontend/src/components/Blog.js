@@ -1,10 +1,8 @@
 import React, { useState } from 'react'
 import "../index.css"
-import blogService from '../services/blogs'
 
 const Blog = ({ blog, addLike, removeBlog }) => {
   const [view, setView] = useState(false)
-  const [refresh, setRefresh] = useState(false)
 
   return (
     <div className="blogStyle">
