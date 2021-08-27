@@ -18,7 +18,9 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs => {
       console.log("getAll")
-      setBlogs(blogs)
+      setBlogs(blogs.sort((a, b) => {
+        return b.likes - a.likes
+      }))
     })
   }, [])
 
@@ -31,6 +33,13 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
+
+  const getAllBlogsAsync = async () => {
+    const blogs = await blogService.getAll()
+    setBlogs(blogs.sort((a, b) => {
+      return b.likes - a.likes
+    }))
+  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -77,7 +86,10 @@ const App = () => {
     try {
       console.log("NewBlog:", newBlog)
       await blogService.create(newBlog)
-      setBlogs(await blogService.getAll())
+      const blogs = await blogService.getAll()
+      setBlogs(blogs.sort((a, b) => {
+        return b.likes - a.likes
+      }))
       handleNotification(
         `a new blog ${newBlog.title} by ${newBlog.author} added`,
         "green"
@@ -89,6 +101,16 @@ const App = () => {
       handleNotification("invalid blog", "red")
       return false
     }
+  }
+
+  const addLike = async (blog) => {
+    await blogService.updateBlog(blog.id, { likes: blog.likes + 1 })
+    getAllBlogsAsync()
+  }
+
+  const removeBlog = async (id) => {
+    await blogService.deleteBlog(id)
+    getAllBlogsAsync()
   }
 
   return (
@@ -110,7 +132,9 @@ const App = () => {
           handleLogout={handleLogout}
           addBlog={addBlog}
           notification={notification}
-          blogFormRef={blogFormRef} />
+          blogFormRef={blogFormRef}
+          addLike={addLike}
+          removeBlog={removeBlog} />
       }
 
     </>
@@ -153,7 +177,7 @@ const Blogs = (props) => {
       <br/>
 
       {props.blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
+        <Blog key={blog.id} blog={blog} addLike={props.addLike} removeBlog={props.removeBlog}/>
       )}
     </div>
   )

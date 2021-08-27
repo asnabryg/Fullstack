@@ -22,6 +22,15 @@ const create = async newBlog => {
   return response
 }
 
+const deleteBlog = async id => {
+  const config = {
+    headers: {
+      Authorization: token
+    }
+  }
+  return await axios.delete(baseUrl + `/${id}`, config)
+}
+
 const updateBlog = async (id, updatedBlog) => {
   return await axios.put(baseUrl + `/${id}`, updatedBlog)
 }
@@ -30,6 +39,7 @@ const x = {
   getAll,
   setToken,
   create,
-  updateBlog
+  updateBlog,
+  deleteBlog
 }
 export default x
