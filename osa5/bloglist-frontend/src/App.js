@@ -118,13 +118,11 @@ const App = () => {
 
       {user === null
         ?
-        <Toggleable buttonText="log in">
-          <LoginForm
-            setUsername={setUsername}
-            setPassword={setPassword}
-            handleLogin={handleLogin}
-            notification={notification} />
-        </Toggleable>
+        <LoginForm
+          setUsername={setUsername}
+          setPassword={setPassword}
+          handleLogin={handleLogin}
+          notification={notification} />
         :
         <Blogs
           user={user}
@@ -148,10 +146,10 @@ const LoginForm = (props) => {
       <Notification notification={props.notification} />
       <form onSubmit={props.handleLogin}>
         username
-        <input onChange={({ target }) => props.setUsername(target.value)} /><br />
+        <input id="username" onChange={({ target }) => props.setUsername(target.value)} /><br />
         password
-        <input type="password" onChange={({ target }) => props.setPassword(target.value)} /><br />
-        <button type="submit">login</button>
+        <input id="password" type="password" onChange={({ target }) => props.setPassword(target.value)} /><br />
+        <button id="login-btn" type="submit">login</button>
       </form>
     </div>
   )

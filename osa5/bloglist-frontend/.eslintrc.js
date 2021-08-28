@@ -4,6 +4,10 @@ module.exports = {
     "es6": true,
     "jest/globals": true
   },
+  "globals": {
+    "cy": false,
+    "Cypress": false
+  },
   "extends": [
     "eslint:recommended",
     "plugin:react/recommended"
