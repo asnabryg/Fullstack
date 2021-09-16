@@ -2,7 +2,7 @@ import React from "react"
 import { useDispatch } from "react-redux"
 import { createAnectode } from "../reducers/anecdoteReducer"
 
-const AnectodeForm = () => {
+const AnecdoteForm = () => {
 
   const dispatch = useDispatch()
 
@@ -24,4 +24,4 @@ const AnectodeForm = () => {
   )
 }
 
-export default AnectodeForm
+export default AnecdoteForm
