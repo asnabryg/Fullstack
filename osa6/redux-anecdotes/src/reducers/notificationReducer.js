@@ -1,10 +1,18 @@
 
-export const setNotification = (notification) => {
+export const setNotification = (notification, seconds) => {
   // if notification is null, the notification is not displayed.
   // notification is always displayed only 5 seconds
-  return {
-    type: "SET_NOTIFICATION",
-    notification: notification
+  return async dispatch => {
+    dispatch({
+      type: "SET_NOTIFICATION",
+      notification: notification
+    })
+    setTimeout(() => {
+      dispatch({
+        type: "SET_NOTIFICATION",
+        notification: null
+      })
+    }, seconds * 1000)
   }
 }
 
@@ -12,12 +20,6 @@ const reducer = (state = null, action) => {
   switch (action.type) {
     case "SET_NOTIFICATION":
       return action.notification
-    
-    case "VOTE":
-      return `you voted '${action.data.anecdote}'`
-    
-    case "ADD":
-      return `you added '${action.data.content}'`
 
     default:
       return state

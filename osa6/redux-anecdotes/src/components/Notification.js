@@ -5,12 +5,12 @@ import { setNotification } from '../reducers/notificationReducer'
 
 const Notification = () => {
   const notification = useSelector(state => state.notification)
-  const dispatch = useDispatch()
-  if (notification) {
-    setTimeout(() => {
-      dispatch(setNotification(null))
-    }, 5000)
-  }
+  // const dispatch = useDispatch()
+  // if (notification) {
+  //   setTimeout(() => {
+  //     dispatch(setNotification(null))
+  //   }, 5000)
+  // }
   const style = {
     border: 'solid',
     padding: 10,
