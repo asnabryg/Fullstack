@@ -1,16 +1,9 @@
 
 import React from 'react'
-import { useDispatch, useSelector } from "react-redux"
+import { connect } from "react-redux"
 import { setNotification } from '../reducers/notificationReducer'
 
-const Notification = () => {
-  const notification = useSelector(state => state.notification)
-  // const dispatch = useDispatch()
-  // if (notification) {
-  //   setTimeout(() => {
-  //     dispatch(setNotification(null))
-  //   }, 5000)
-  // }
+const Notification = (props) => {
   const style = {
     border: 'solid',
     padding: 10,
@@ -18,10 +11,10 @@ const Notification = () => {
   }
   return (
     <>
-      {notification
+      {props.notification.text
         ?
         <div style={style}>
-          {notification}
+          {props.notification.text}
         </div>
         :
         null}
@@ -29,4 +22,15 @@ const Notification = () => {
   )
 }
 
-export default Notification
+const mapStateToProps = (state) => {
+  return {
+    notification: state.notification
+  }
+}
+
+const mapDispatchToProps = {
+  setNotification
+}
+
+const ConnectedNotification = connect(mapStateToProps, mapDispatchToProps)(Notification)
+export default ConnectedNotification
