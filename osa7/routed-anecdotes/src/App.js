@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Switch, Route, Link, useRouteMatch, useHistory } from "react-router-dom"
+import { useField } from './hooks'
 
 const Menu = () => {
   const padding = {
@@ -62,22 +63,33 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
+  const content = useField("text")
+  const author = useField("text")
+  const info = useField("text")
   const history = useHistory()
-
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.value,
+      author: author.value,
+      info: info.value,
       votes: 0
     })
     history.push("/")
   }
+
+  const handleReset = () => {
+    content.reset()
+    author.reset()
+    info.reset()
+  }
+  const copy_content = {...content}
+  delete copy_content.reset
+  const copy_author = { ...author }
+  delete copy_author.reset
+  const copy_info = { ...info }
+  delete copy_info.reset
 
   return (
     <div>
@@ -85,17 +97,18 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input name='content' {...copy_content} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input name='author' {...copy_author} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e) => setInfo(e.target.value)} />
+          <input name='info' {...copy_info} />
         </div>
         <button>create</button>
+        <button type="button" onClick={handleReset}>reset</button>
       </form>
     </div>
   )
