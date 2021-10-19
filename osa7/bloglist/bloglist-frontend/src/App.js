@@ -7,7 +7,7 @@ import blogService from './services/blogs'
 import loginService from "./services/login"
 import Notification from "./components/Notification"
 import { setNotification } from "./reducers/notificationReducer"
-import { getBlogs, createBlog } from './reducers/blogReducer'
+import { getBlogs, createBlog, likeBlog, deleteBlog } from './reducers/blogReducer'
 import { useDispatch, useSelector } from 'react-redux'
 
 const App = () => {
@@ -70,7 +70,6 @@ const App = () => {
   }
 
   const handleNotification = (message, color) => {
-    console.log('asd', message, color)
     dispatch(setNotification(message, color, 5))
   }
 
@@ -92,13 +91,11 @@ const App = () => {
   }
 
   const addLike = async (blog) => {
-    await blogService.updateBlog(blog.id, { likes: blog.likes + 1 })
-    dispatch(getBlogs())
+    dispatch(likeBlog(blog))
   }
 
   const removeBlog = async (id) => {
-    await blogService.deleteBlog(id)
-    dispatch(getBlogs())
+    dispatch(deleteBlog(id))
   }
 
   return (

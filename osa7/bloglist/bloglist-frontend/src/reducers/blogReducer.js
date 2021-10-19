@@ -21,6 +21,20 @@ export const createBlog = (content) => {
 	}
 }
 
+export const deleteBlog = (id) => {
+	return async dispatch => {
+		await blogService.deleteBlog(id)
+		dispatch(getBlogs())
+	}
+}
+
+export const likeBlog = (blog) => {
+	return async dispatch => {
+		await blogService.updateBlog(blog.id, { likes: blog.likes + 1 })
+		dispatch(getBlogs())
+	}
+}
+
 const reducer = (state = [], action) => {
 	switch (action.type) {
 		case "GET_BLOGS":
