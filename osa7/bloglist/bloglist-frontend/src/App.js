@@ -11,10 +11,13 @@ import { setNotification } from "./reducers/notificationReducer"
 import { getBlogs, createBlog, likeBlog, deleteBlog } from './reducers/blogReducer'
 import { useDispatch, useSelector } from 'react-redux'
 import { getLoggedUserJSON, login, logout } from "./reducers/userReducer"
+import { Switch, Route, Link, useRouteMatch } from "react-router-dom"
+import userService from "./services/users"
 
 const App = () => {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
+  const [users, setUsers] = useState([])
   const dispatch = useDispatch()
 
   const blogFormRef = useRef()
@@ -36,7 +39,12 @@ const App = () => {
 
   useEffect(() => {
     dispatch(getLoggedUserJSON())
+    userService.getAll().then(users => {
+      setUsers(users)
+    })
   }, [])
+
+
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -95,14 +103,45 @@ const App = () => {
           setPassword={setPassword}
           handleLogin={handleLogin} />
         :
-        <Blogs
-          user={user}
-          blogs={blogs}
-          handleLogout={handleLogout}
-          addBlog={addBlog}
-          blogFormRef={blogFormRef}
-          addLike={addLike}
-          removeBlog={removeBlog} />
+        <div>
+          <h2>blogs</h2>
+          <Notification />
+
+          <form onSubmit={handleLogout}>
+            <p>{user.username} logged in</p>
+            <button>logout</button>
+          </form>
+          <Switch>
+            <Route path="/users">
+              <h2>Users</h2>
+              <table>
+                <tbody>
+                  <tr>
+                    <th></th>
+                    <th>blogs created</th>
+                  </tr>
+                  {users.map(user =>
+                    <tr key={user.id}>
+                      <td>{user.username}</td>
+                      <td>{user.blogs.length}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </Route>
+
+            <Route path="/">
+              <Blogs
+                user={user}
+                blogs={blogs}
+                handleLogout={handleLogout}
+                addBlog={addBlog}
+                blogFormRef={blogFormRef}
+                addLike={addLike}
+                removeBlog={removeBlog} />
+            </Route>
+          </Switch>
+        </div>
       }
 
     </>
@@ -128,14 +167,6 @@ const LoginForm = (props) => {
 const Blogs = (props) => {
   return (
     <div>
-      <h2>blogs</h2>
-      <Notification />
-
-      <form onSubmit={props.handleLogout}>
-        {props.user.username} logged in
-        <button>logout</button>
-      </form>
-      <br />
 
       <Toggleable buttonText="create new blog" ref={props.blogFormRef}>
         <BlogForm
