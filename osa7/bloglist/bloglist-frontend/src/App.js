@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect, useRef } from 'react'
 import "./index.css"
 import Blog from './components/Blog'
@@ -9,12 +10,11 @@ import Notification from "./components/Notification"
 import { setNotification } from "./reducers/notificationReducer"
 import { getBlogs, createBlog, likeBlog, deleteBlog } from './reducers/blogReducer'
 import { useDispatch, useSelector } from 'react-redux'
+import { getLoggedUserJSON, login, logout } from "./reducers/userReducer"
 
 const App = () => {
-  // const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
-  const [user, setUser] = useState(null)
   const dispatch = useDispatch()
 
   const blogFormRef = useRef()
@@ -24,19 +24,18 @@ const App = () => {
     dispatch(getBlogs())
   }, [dispatch])
 
+  const user = useSelector(({ user }) => {
+    return user
+  })
+  // console.log('USER', user)
+
   const blogs = useSelector(({ blogs }) => {
     return blogs
   })
-  console.log('BLOGS' , blogs)
+  // console.log('BLOGS' , blogs)
 
   useEffect(() => {
-    const loggedUserJSON = window.localStorage.getItem("loggedUser")
-    if (loggedUserJSON) {
-      console.log("getLoggedUser")
-      const user = JSON.parse(loggedUserJSON)
-      setUser(user)
-      blogService.setToken(user.token)
-    }
+    dispatch(getLoggedUserJSON())
   }, [])
 
   const handleLogin = async (event) => {
@@ -44,25 +43,13 @@ const App = () => {
     if (!username || !password) {
       return
     }
-
-    try {
-      const user = await loginService.login({ username, password })
-      blogService.setToken(user.token)
-      window.localStorage.setItem("loggedUser", JSON.stringify(user))
-      setUser(user)
-      setUsername("")
-      setPassword("")
-    } catch (exception) {
-      handleNotification("wrong username or password", "red")
-      console.error("wrong credentials, ", exception.message)
-    }
+    dispatch(login(username, password))
   }
 
   const handleLogout = (event) => {
     event.preventDefault()
     console.log("logging out")
-    window.localStorage.removeItem("loggedUser")
-    setUser(null)
+    dispatch(logout())
     setUsername("")
     dispatch(setNotification(null, null, null))
     setPassword("")
