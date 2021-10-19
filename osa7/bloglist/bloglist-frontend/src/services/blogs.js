@@ -19,7 +19,7 @@ const create = async newBlog => {
     }
   }
   const response = await axios.post(baseUrl, newBlog, config)
-  return response
+  return response.data
 }
 
 const deleteBlog = async id => {

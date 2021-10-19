@@ -7,10 +7,11 @@ import blogService from './services/blogs'
 import loginService from "./services/login"
 import Notification from "./components/Notification"
 import { setNotification } from "./reducers/notificationReducer"
-import { useDispatch } from 'react-redux'
+import { getBlogs, createBlog } from './reducers/blogReducer'
+import { useDispatch, useSelector } from 'react-redux'
 
 const App = () => {
-  const [blogs, setBlogs] = useState([])
+  // const [blogs, setBlogs] = useState([])
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const [user, setUser] = useState(null)
@@ -19,13 +20,14 @@ const App = () => {
   const blogFormRef = useRef()
 
   useEffect(() => {
-    blogService.getAll().then(blogs => {
-      console.log("getAll")
-      setBlogs(blogs.sort((a, b) => {
-        return b.likes - a.likes
-      }))
-    })
-  }, [])
+    console.log('effect')
+    dispatch(getBlogs())
+  }, [dispatch])
+
+  const blogs = useSelector(({ blogs }) => {
+    return blogs
+  })
+  console.log('BLOGS' , blogs)
 
   useEffect(() => {
     const loggedUserJSON = window.localStorage.getItem("loggedUser")
@@ -36,13 +38,6 @@ const App = () => {
       blogService.setToken(user.token)
     }
   }, [])
-
-  const getAllBlogsAsync = async () => {
-    const blogs = await blogService.getAll()
-    setBlogs(blogs.sort((a, b) => {
-      return b.likes - a.likes
-    }))
-  }
 
   const handleLogin = async (event) => {
     event.preventDefault()
@@ -82,11 +77,7 @@ const App = () => {
   const addBlog = async (newBlog) => {
     try {
       console.log("NewBlog:", newBlog)
-      await blogService.create(newBlog)
-      const blogs = await blogService.getAll()
-      setBlogs(blogs.sort((a, b) => {
-        return b.likes - a.likes
-      }))
+      dispatch(createBlog(newBlog))
       handleNotification(
         `a new blog ${newBlog.title} by ${newBlog.author} added`,
         "green"
@@ -102,12 +93,12 @@ const App = () => {
 
   const addLike = async (blog) => {
     await blogService.updateBlog(blog.id, { likes: blog.likes + 1 })
-    getAllBlogsAsync()
+    dispatch(getBlogs())
   }
 
   const removeBlog = async (id) => {
     await blogService.deleteBlog(id)
-    getAllBlogsAsync()
+    dispatch(getBlogs())
   }
 
   return (
@@ -154,8 +145,6 @@ const Blogs = (props) => {
   return (
     <div>
       <h2>blogs</h2>
-
-      {/* <Notification notification={props.notification} /> */}
       <Notification />
 
       <form onSubmit={props.handleLogout}>
@@ -176,16 +165,5 @@ const Blogs = (props) => {
     </div>
   )
 }
-
-// const Notification = ({ notification }) => {
-//   if (!notification || !notification.message) {
-//     return null
-//   }
-//   return (
-//     <div className="notification" style={{ color: notification.color }}>
-//       {notification.message}
-//     </div>
-//   )
-// }
 
 export default App

@@ -4,7 +4,6 @@ import { connect } from "react-redux"
 import { setNotification } from "../reducers/notificationReducer";
 
 const Notification = (props) => {
-    console.log('NOTFICATION', props)
     if (!props.notification.text) {
         return null
     }
