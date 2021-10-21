@@ -1,26 +1,28 @@
 import React, { useState } from 'react'
 import "../index.css"
+import { Link } from "react-router-dom"
+import { Button } from "react-bootstrap"
 
 const Blog = ({ blog, addLike, removeBlog }) => {
   const [view, setView] = useState(false)
 
   return (
     <div className="blogStyle">
-      {blog.title} {blog.author}
-      <button onClick={() => setView(!view)}>
+      <Link to={`/blogs/${blog.id}`}>{blog.title}</Link> {blog.author}
+      <Button onClick={() => setView(!view)}>
         {view ? "hide" : "view"}
-      </button>
+      </Button>
       {view
         ?
         <>
           <br />
           {blog.url} <br />
           {blog.likes}
-          <button onClick={() => addLike(blog)}>
+          <Button onClick={() => addLike(blog)}>
             like
-          </button> <br />
+          </Button> <br />
           {blog.user.username} <br />
-          <button onClick={() => removeBlog(blog.id)}>remove</button>
+          <Button onClick={() => removeBlog(blog.id)}>remove</Button>
         </>
         :
         <></>

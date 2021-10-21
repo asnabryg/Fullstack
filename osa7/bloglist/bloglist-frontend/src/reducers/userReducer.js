@@ -50,8 +50,6 @@ export const getLoggedUserJSON = () => {
   }
 }
 
-
-
 const reducer = (state = null, action) => {
   switch (action.type) {
     case "LOGIN":
