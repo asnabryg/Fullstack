@@ -12,7 +12,10 @@ const Authors = (props) => {
 
   const authors = useQuery(ALL_AUTHORS)
   const [ editAuthor ] = useMutation(EDIT_AUTHOR, {
-    refetchQueries: [{query: ALL_AUTHORS}]
+    refetchQueries: [{query: ALL_AUTHORS}],
+    onError: (error) => {
+      console.log('error', error.message)
+    }
   })
 
   const changeYear = async (event) => {
