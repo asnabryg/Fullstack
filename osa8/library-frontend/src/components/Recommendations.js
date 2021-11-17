@@ -8,7 +8,6 @@ const Recommendations = (props) => {
 
   const me = useQuery(ME, {
     onCompleted: ({ me }) => {
-      console.log('me', me)
       setGenre(me.favoriteGenre)
     },
     fetchPolicy: "no-cache"
