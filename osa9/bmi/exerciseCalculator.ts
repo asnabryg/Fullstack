@@ -9,7 +9,7 @@ interface Result {
     average: number
 }
 
-const calculateExercises = (hours: number[], target: number): Result => {
+export const calculateExercises = (hours: number[], target: number): Result => {
     const average: number = (hours.reduce((sum, a) => sum + a, 0)) / hours.length;
     let rating = 1;
     let ratingDescription = "bad";
