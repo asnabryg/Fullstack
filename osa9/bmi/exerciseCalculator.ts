@@ -11,7 +11,7 @@ interface Result {
 
 const calculateExercises = (hours: number[], target: number): Result => {
     const average: number = (hours.reduce((sum, a) => sum + a, 0)) / hours.length;
-    let rating: number = 0;
+    let rating: number = 1;
     let ratingDescription: string = "bad";
     if (average < target) {
         rating = 2;
@@ -31,4 +31,7 @@ const calculateExercises = (hours: number[], target: number): Result => {
     }
 }
 
-console.log(calculateExercises([3, 0, 2, 4.5, 0, 3, 1], 2));
+const [a, b, target, ...rest] = process.argv;
+const hours: number[] = rest.map(n => Number(n));
+
+console.log(calculateExercises(hours, Number(target)));
