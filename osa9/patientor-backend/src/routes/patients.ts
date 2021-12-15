@@ -8,6 +8,16 @@ router.get("/", (_req, res) => {
     res.send(patientService.getPatients());
 });
 
+router.get("/:id", (_req, res) => {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+        const patient = patientService.findById(_req.params.id);
+        res.json(patient);
+    } catch (error: unknown) {
+        res.status(404).send("not found");
+    }
+});
+
 router.post("/", (_req, res) => {
     try {
         const newPatient = toNewPatient(_req.body);
