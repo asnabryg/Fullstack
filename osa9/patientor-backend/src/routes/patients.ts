@@ -1,11 +1,25 @@
 import express from "express";
 import patientService from "../services/patientService";
-import toNewPatient from "../utils";
+import toNewPatient, { toNewEntry } from "../utils";
 
 const router = express.Router();
 
 router.get("/", (_req, res) => {
     res.send(patientService.getPatients());
+});
+
+router.post("/:id/entries", (_req, res) => {
+    try {
+        const patient = patientService.findById(_req.params.id);
+        const newEntry = toNewEntry(_req.body);
+        if (patient && newEntry) {
+            const entry = patientService.addEntry(patient, newEntry);
+            res.json(entry);
+        }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (e: any) {
+        res.status(400).send(e.message);
+    }
 });
 
 router.get("/:id", (_req, res) => {

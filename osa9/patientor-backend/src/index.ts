@@ -13,7 +13,7 @@ app.get("/ping", (_req, res) => {
     res.send("pong");
 });
 
-app.use("/api/diagnoses", diagnoseRouter);
+app.use("/api/diagnosis", diagnoseRouter);
 
 app.use("/api/patients", patientRouter);
 

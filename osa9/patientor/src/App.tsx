@@ -4,15 +4,15 @@ import { BrowserRouter as Router, Route, Link, Switch } from "react-router-dom";
 import { Button, Divider, Header, Container } from "semantic-ui-react";
 
 import { apiBaseUrl } from "./constants";
-import { useStateValue } from "./state";
-import { Patient } from "./types";
+import { useStateValue, setDiagnoses } from "./state";
+import { Diagnosis, Patient } from "./types";
 
 import PatientListPage from "./PatientListPage";
 
 import PatientPage from "./PatientPage";
 
 const App = () => {
-  const [, dispatch] = useStateValue();
+  const [state, dispatch] = useStateValue();
   React.useEffect(() => {
     void axios.get<void>(`${apiBaseUrl}/ping`);
 
@@ -26,7 +26,19 @@ const App = () => {
         console.error(e);
       }
     };
+    const fetchDiagnosesList = async () => {
+      try {
+        const { data: diagnosesListFromApi } = await axios.get<Diagnosis[]>(
+          `${apiBaseUrl}/diagnoses`
+        );
+        dispatch(setDiagnoses(diagnosesListFromApi));
+      } catch (e) {
+        console.log(e);
+      }
+    };
     void fetchPatientList();
+    void fetchDiagnosesList();
+    console.log(state);
   }, [dispatch]);
 
   return (
